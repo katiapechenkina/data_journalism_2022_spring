@@ -75,6 +75,7 @@ maryland_ppp %>%
   percent_payroll = (payroll_proceed/amount)*100
 )  %>% arrange(desc(percent_payroll))
 ```
+Description:The code puts all Maryland ppp loans that were used to pay for payroll data in descending order. 
 What is the payroll proceeds percentage for the first result? Put your answer in the space below.
 **Answer** 100%
 
@@ -108,7 +109,7 @@ maryland_with_in_out <- maryland_ppp %>%
       )
   )
 ```
-
+Description:The code filters data by MD based lenders servicing the ppp loans. 
 ### Task 9: Create a new column using case_when
 One common use of mutate is to create a new column and then populate it based on values in an existing column. For example, if we wanted to put the values in `jobs_retained` into broader categories in a new column called `jobs_retained_category` and we have multiple categories. We can use a function called `case_when` to make that easier.
 
