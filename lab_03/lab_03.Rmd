@@ -46,10 +46,26 @@ cleaned_wv_ppp_loans <- wv_ppp_loans %>%
 ```
 
 ```{r}
-
 cleaned_wv_ppp_loans <- wv_ppp_loans %>%
   filter(project_county_name == "KANAWHA") %>%
-   group_by(city) %>%
+  select(project_county_name,amount,city) %>% 
+  mutate(city = str_to_title(city)) %>%
+mutate (
+  city = case_when(
+    city == "CHARLESTON" ~ "Charleston",
+    city == "So Charleston" ~ "South Charleston",
+    city == "S Charleston" ~ "South Charleston",
+    city == "South Chaleston"~ "South Chaleston",
+    city == "St.albans"~ "Saint Albans",
+    city == "St Albans"~ "Saint Albans",
+    city == "St. Albans"~ "Saint Albans",
+    city == "Crosslanes"~ "Cross Lanes",
+    city == "Elkveiw"~ "Elkview",
+    city == "Balle"~ "Belle",
+    city == "Charelston"~ "Charleston",
+    TRUE ~ city
+)) %>%
+group_by(city) %>%
   summarise(
     count=n()
   ) %>%
@@ -59,6 +75,7 @@ cleaned_wv_ppp_loans <- wv_ppp_loans %>%
 ```{r}
 
 cleaned_wv_ppp_loans <- wv_ppp_loans %>%
+  
   filter(project_county_name == "KANAWHA") %>%
   mutate(city = str_to_title(city)) %>%
 mutate(city = case_when(
@@ -74,7 +91,7 @@ mutate(city = case_when(
     city == "Balle"~ "Belle",
     city == "Charelston"~ "Charleston",
 ))
- group_by (city) %>%
+ group_by(city) %>%
   summarise(
     count=n()
   ) %>%
