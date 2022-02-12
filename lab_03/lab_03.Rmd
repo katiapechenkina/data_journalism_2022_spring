@@ -64,7 +64,7 @@ mutate (
     city == "Balle"~ "Belle",
     city == "Charelston"~ "Charleston",
     TRUE ~ city
-)) %>%
+))
 group_by(city) %>%
   summarise(
     count=n()
@@ -148,11 +148,17 @@ Some hints to help you answer this question:
 * This is a link to details on passage of the [CARES ACT](https://www.congress.gov/bill/116th-congress/house-bill/748). You can find a link to how the House voted by clicking on a link from [this page](https://www.congress.gov/bill/116th-congress/house-bill/748/actions).
 
 A3:
-Business names are 1088 Parker Dr., DM Motors, Duthc Miller CHevrolet, Dutch Miller of Charleston, Dutch Miller of Charlotte 
+Business names are  "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLER OF CHARLOTTE INC","DUTCH MILLER SUBARU INC","DUTCH MILLER CHEVROLET INC". Those are all auto dealerships. 
 ```{r}
 
 # Hint
 # First, create a dataframe that only has loans to those five companies
 # Second, use that newly created dataframe to calculate total loan amount and percentage forgiven for those companies
+
+```{r}
+house_member_loans <- wv_ppp_loans %>%
+filter(name == "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLER OF CHARLOTTE INC","DUTCH MILLER SUBARU INC","DUTCH MILLER CHEVROLET INC")
+
+```
 
 ```
