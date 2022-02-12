@@ -148,7 +148,9 @@ Some hints to help you answer this question:
 * This is a link to details on passage of the [CARES ACT](https://www.congress.gov/bill/116th-congress/house-bill/748). You can find a link to how the House voted by clicking on a link from [this page](https://www.congress.gov/bill/116th-congress/house-bill/748/actions).
 
 A3:
-Business names are  "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLER OF CHARLOTTE INC","DUTCH MILLER SUBARU INC","DUTCH MILLER CHEVROLET INC". Those are all auto dealerships. 
+Business names are  "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLER OF CHARLOTTE INC","DUTCH MILLER SUBARU INC","DUTCH MILLER CHEVROLET INC". Those are all auto dealerships. Total loans amount is $3105300. Total forgiven is $3140471. I cannot figure out the code to include both the forgiveness amount and initial amount and the percentage. Miller voted YEA
+
+
 ```{r}
 
 # Hint
@@ -157,8 +159,20 @@ Business names are  "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLE
 
 ```{r}
 house_member_loans <- wv_ppp_loans %>%
-filter(name == "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLER OF CHARLOTTE INC","DUTCH MILLER SUBARU INC","DUTCH MILLER CHEVROLET INC")
+filter(str_detect(name,"DUTCH MILLER |DM MOTOR"))
 
-```
+
+  
+house_member_loans %>%
+  summarise(total_amount = sum(amount))
+            
+house_member_loans %>%
+summarise(total_amount = sum(forgiveness_amount))
+
+house_member_loans %>%
+   select(name, total_amount, forgiveness_amount) %>%
+  mutate(
+  percent_forgiveness = (total_amount/forgiveness_amount)*100
+)  %>% arrange
 
 ```
