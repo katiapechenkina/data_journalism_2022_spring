@@ -158,21 +158,21 @@ Business names are  "DM MOTOR INC","DUTCH MILLER OF CHARLESTON INC","DUTCH MILLE
 # Second, use that newly created dataframe to calculate total loan amount and percentage forgiven for those companies
 
 ```{r}
+
 house_member_loans <- wv_ppp_loans %>%
 filter(str_detect(name,"DUTCH MILLER |DM MOTOR"))
-
-
   
 house_member_loans %>%
+  group_by(name,amount,forgiveness_amount)
   summarise(total_amount = sum(amount))
             
 house_member_loans %>%
 summarise(total_amount = sum(forgiveness_amount))
-
 house_member_loans %>%
    select(name, total_amount, forgiveness_amount) %>%
   mutate(
   percent_forgiveness = (total_amount/forgiveness_amount)*100
 )  %>% arrange
+
 
 ```
