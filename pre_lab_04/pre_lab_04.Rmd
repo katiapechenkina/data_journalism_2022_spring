@@ -104,7 +104,7 @@ Error: Can't join on `x$zip` x `y$zip` because of incompatible types.
 i `x$zip` is of type <character>>.
 i `y$zip` is of type <double>>.
 
-Dataframes have different column data types for zip code.   
+Meaning: Dataframes have different column data types for zip code.   
 ```{r}
 # join on zip - but there's a problem
 maryland_ppp_with_naics_and_demographics <- maryland_ppp_with_naics %>% left_join(maryland_zcta, by=c("zip"="ZCTA5N"))
