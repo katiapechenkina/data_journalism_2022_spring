@@ -156,7 +156,7 @@ summarise(
 ```
 
 **Q7** How many industries have exactly one loan in the data (hint: you can filter _after_ using `summarise` on any totals you create). From a newsworthiness standpoint, which of these is most worthy of further exploration, and why?
-**A7** 44
+**A7** 44. It would be newsworthy to see how much ppp money was provided for Ammunition manufacturer, because that idusty had booming sales anyway plus the program was intended to provide relief for small businesses. 
 ```{r}
 maryland_ppp_with_naics_and_demographics %>%
   group_by(title)%>%
