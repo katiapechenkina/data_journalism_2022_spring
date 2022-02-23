@@ -36,7 +36,7 @@ library(refinr)
 ### Task 3: Load data
 **Task** Run the following code to load the zipped-up Maryland PPP loans data. How many records are in this table?
 **Answer**
-
+195,865
 ```{r}
 # Load data
 md_loans <- read_csv("data/ppp_loans_md.csv.zip")
@@ -49,7 +49,7 @@ md_loans
 ### Task 4: Group and count to identify problems in city column
 **Task** Run the following code to group and count records in the city column, and filter to examine only cities that start with A. Name a problem that you see that is preventing proper grouping.
 **Answer**
-
+Cities start with either an uppercase A or lowercase a
 ```{r}
 # Now let's try and group and count the number of loans by city. To make it a bit more managable, let's use another string function from `stringr` and filter for cities that start with the uppercase "A" or lowercase "a" using the function `str_detect()` with a regular expression.  
 
@@ -114,3 +114,6 @@ cleaned_md_loans %>%
 ```
 ### Task 8: Follow the directions in the textbook to use Open Refine
 **Task** Follow the directions in the textbook to upload ppp_loans_md.csv.zip to Open Refine. Follow the instructions to clean as many cities as the Open Refine clustering tool can identify.  In class, I will come around to look at the Open Refine project you created to do this. 
+
+Note:
+I cleaned up everything that I was sure of, but what's left are things like "MD" or names of Naval Bases (not cities), also a couple of neighborhoods(also not cities)
