@@ -41,6 +41,9 @@ library(refinr)
 # Load data
 md_loans <- read_csv("data/ppp_loans_md.csv.zip")
 
+college_park_loans <- md_loans %>%filter(city== 'College Park')
+write_csv(college_park_loans, "data/college_park_loans.csv")
+
 # Display it
 md_loans
 
