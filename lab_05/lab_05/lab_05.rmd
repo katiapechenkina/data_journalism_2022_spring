@@ -104,32 +104,46 @@ Requirement: you MUST export a dataframe of PPP loans from R Studio at some poin
 ```{r}
 # write_csv accepts 2 arguments: the dataframe and the path to the file you write out
 write_csv(wv_population_county, "data\wv_population_county.csv")
-write_cvs()
+write_cvs(wv_loans_subset,"data/wv-loans-subset-cvs.csv")
 ```
 
 Guidance: there are a lot of steps you'll need to take to answer this question. You may find it helpful to write out in English what you plan to do step-by-step before you start writing code.   
 
 **A3.**
+ Martinsburg, Full-Service Restaurants
 
 ```{r}
-wv_population_county%>% arrange(desc(population_2019))
 
+wv_population_county %>% arrange(desc(population_2019))
 
+berkeley_subset<- west_virginia_ppp %>%
+  filter(project_county_name == 'BERKELEY')
 
-west_virginia_ppp %>%
-filter(str_detect(county,"Berkeley")) %>%
-  group_by(city) %>%
-  summarise(
-    count_loans=n()
-  ) %>%
-  arrange(desc(count))
-  
+berkeley_subset %>%
+group_by(city)%>%
+   summarise(count_loans = n())%>%
+  arrange(desc(count_loans))
 
+berkeley_subset_clean <- read.csv("data/wv-loans-subset-cvs.csv")
+berkeley_subset_clean %>%
+group_by(city_original)%>%
+   summarise(count_loans = n())%>%
+  arrange(desc(count_loans))
+
+martinsburg_data <- berkeley_subset_clean %>%
+  filter(city_original == 'Martinsburg')
+ martinsburg_data_with_naics <-martinsburg_data  %>% left_join(naics_codes)
+ 
+ 
+ martinsburg_data_with_naics %>%
+   group_by (title) %>%
+     summarise(count_loans = n())%>%
+  arrange(desc(count_loans))
 
 ```
 
 **Q4.** What are your two best hypotheses, which you'd need to confirm with reporting and further analysis, that explain why that industry is at the top of the list?
-
+1- Lots of restaurants in that city. 2 - chain restaurants in that city. Just by googling the city and looking at the map we can see that both are close to the truth - this small city does have plenty of restaurants and many chain ones. 
 **A4.**
 
 **Q5.** Start with a dataframe of loans to all businesses in the city and industry that answered question 3. Answer the following questions:
@@ -144,3 +158,11 @@ filter(str_detect(county,"Berkeley")) %>%
 Hint: you will not find the answers to the last three questions in the data.  You could call them directly to get that information, but I don't want you to do that for this assignment.  Instead, do some web research. I would start by Googling the company name from the data and looking at the page that comes up for the business from at http://apps.sos.wv.gov/. I would use information I found on that page and use info about the company from Google, the [Wayback machine](https://archive.org/web/) (which lets you look at older versions of a company's website), Yelp, and Facebook.
 
 **A5.**
+COTTLE CHRISTI L LLC, $ 280434.00,approved on 2021-02-17, 94 jobs retained. Known as Kitzie's.6 locations. KITZIE'S OF INWOOD is closed. 
+
+```{r}
+ martinsburg_data_with_naics %>%
+  filter(title == "Full-Service Restaurants") %>%
+  group_by(name,current_approval_amount,date_approved)%>%
+  arrange(desc(current_approval_amount))
+```
