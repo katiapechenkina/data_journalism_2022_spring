@@ -143,8 +143,9 @@ martinsburg_data <- berkeley_subset_clean %>%
 ```
 
 **Q4.** What are your two best hypotheses, which you'd need to confirm with reporting and further analysis, that explain why that industry is at the top of the list?
-1- Lots of restaurants in that city. 2 - chain restaurants in that city. Just by googling the city and looking at the map we can see that both are close to the truth - this small city does have plenty of restaurants and many chain ones. 
+ 
 **A4.**
+1- Lots of restaurants in that city. 2 - chain restaurants in that city. Just by googling the city and looking at the map we can see that both are close to the truth - this small city does have plenty of restaurants and many chain ones.
 
 **Q5.** Start with a dataframe of loans to all businesses in the city and industry that answered question 3. Answer the following questions:
 * What is the name of the business that got the highest approved loan amount?
