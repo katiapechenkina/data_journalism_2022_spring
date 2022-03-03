@@ -27,3 +27,4 @@ homicide_dataset%>%
   arrange(desc(uid))
    
 ```
+Baltimore is in 4th place in the overall raw number of homicides in the dataset provided. 
