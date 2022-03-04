@@ -73,8 +73,8 @@ international_migration <-international_migration %>% mutate(migration_type="int
 ## Answer questions
 
 **Q1** Which region and county/city _below_ the state level accounted for the largest percentage of international migration for the entire time period? You'll need to add and populate a column representing percent of total using `mutate`.
-**A1** [write your answer here]
-Suburban Washington Region
+**A1** 
+Suburban Washington Region, Montgomery county
 
 ```{r}
 # Write the code to produce your answer here
@@ -84,7 +84,7 @@ international_migration %>% arrange(desc(percentage))
 ```
 
 **Q2** Write a sentence or two that describes the data you produced in A1. Try to convey the most important idea.
-**A2** [write your answer here]
+**A2** Most migrants from foreign countries who come to Maryland settle in Suburban Washington Region and Montgomery County. 
 
 **Q3** Which region & jurisdiction had the largest percentage change (either negative or positive) for international migration between July 2018 and July 2017? The formula for percentage change is easy to remember: (New-Old)/Old.
 **A3** Calvert, Southern Maryland Region
@@ -96,7 +96,7 @@ international_migration %>% arrange(percent_change)
 ```
 
 **Q4** What's your best guess as to why these changes occurred, and in those places in particular?
-**A4** [write your answer here]
+**A4** Trump administration had a new international migration policy, including "Muslim ban" and prohibiting refugees from coming into the US. I assume that migrants also just wanted to move out of those white/conservative counties. 
 
 
 ## Back to Tabula
@@ -137,16 +137,16 @@ domestic_migration <- domestic_migration %>% arrange(total)
 ```
 
 **Q6** How many regions & jurisdictions had net positive migration for July 2017, July 2018 and July 2019 (not just individually but all three together)?
-**A6** 18 regions had net positive migration. 
+**A6** 14 regions had net positive migration. 
 
 ```{r}
 # Write the code to produce your answer here
-domestic_migration %>% mutate(net_positive=(`2016-2017`+`2017-2018`+`2018-2019`)) %>%
-filter (net_positive > 0)
 
-domestic_migration %>% filter(`2016-2017` > 0)
+domestic_migration %>% filter(`2016-2017` > 0 & `2017-2018` > 0 &`2018-2019` > 0)
+
 
 ```
 
 **Q7** How would you describe this data? Is there a county or region that stands out, and why?
-**A7** [write your answer here]
+**A7** Population of Talbot County grew significantly. Calvert county saw a significant jump in 2017 but then a decrease in 2018/2019. 
+But the one that stands out most is probably Caroline county that experienced the most decrease in domestic migration. It's over 81% white, conservative by vote. In 2016 Trump was elected and people started to leave? But at the same time other white counties did not see the same change. 
