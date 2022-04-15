@@ -55,8 +55,9 @@ Then answer these questions:
 * Based on the table, what county got the highest total loan amount? What was the total amount per 100K population, the total amount of loans (not population adjusted), how many loans were there, and what's the population?
 
 **A1.**
-
-Ritchie was the county that got the highest total. 
+Only one county got the highest loan amount. Most counties got equal loan amount per 100k, but a few at the southern part of the state got smaller amounts, and some counties in eastern West Virginia got none, according to the data we have. 
+Ritchie was the county that got the highest total. It is located in the West North of the county.
+$77752742.79 was the total amount per 100K population for that county, $7653980.00 ws the total amount (not adjusted), 9 loans, 9844 people 
 
 ```{r}
 mining_industry <- ppp_wv %>%
