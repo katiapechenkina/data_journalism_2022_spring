@@ -1,0 +1,43 @@
+---
+---
+title: "Group project 2"
+author: "Katia Pechenkina"
+date: "4/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Load libraries 
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(readxl)
+
+```
+## Reading in the data for 2012-2015
+
+```{r}
+
+September_2012 <- read_excel("September 2012.xlsx")
+September_2013 <- read_excel("September 2013.xlsx")
+September_2014 <- read_excel("September 2014.xlsx")
+September_2015 <- read_excel("September 2015.xlsx")
+
+
+December_2013<- read_excel("December 2013.xlsx")
+December_2014<- read_excel("December 2014.xlsx")
+December_2015<- read_excel("December 2015.xlsx")
+
+March_2014 <-read_excel("March 2014.xlsx")
+March_2015<-read_excel("March 2015.xlsx")
+
+June_2014<-read_excel("June 2014.xlsx")
+June_2015<-read_excel("June 2015.xlsx")
+
+
+```
