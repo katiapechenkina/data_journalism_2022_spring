@@ -1,0 +1,138 @@
+---
+---
+title: "R Notebook"
+author: Katia Pechenkina
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+library(tidyverse)
+library(readxl)
+library(lubridate)
+
+```
+
+
+```{r}
+
+write_csv(military_presence_data, "military_presence.csv")
+```
+QUESTION #1:What are the biggest shifts in the locations of military personnel between 2008-2016, either into or out of a country?
+
+###I was not sure that the date and year columns were in correct format so I looked using glimpse function. 
+```{r}
+ glimpse(military_presence_data)
+```
+
+```{r}
+###This might be a lot of data sets but it's clean and I can see 2008 and 2016 for each of the Active duty categories. 
+
+obama_08_and_16 <- military_presence_data %>%
+  filter(year =='2008','2016')  
+
+Obama_08_Army_Active_Duty <- military_presence_data %>%
+filter(Year == "2008")%>%
+group_by(Location,Army_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Army_Active_Duty))
+
+Obama_08_Navy_Active_Duty <- military_presence_data %>%
+filter(Year == "2008")%>%
+group_by(Location,Navy_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Navy_Active_Duty))
+
+Obama_08_Marine_Corps_Active_Duty <- military_presence_data %>%
+filter(Year == "2008")%>%
+group_by(Location,Marine_Corps_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Marine_Corps_Active_Duty))
+
+Obama_08_Air_Force_Active_Duty<- military_presence_data %>%
+filter(Year == "2008")%>%
+group_by(Location,Air_Force_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Air_Force_Active_Duty))
+
+Obama_08_Coast_Guard_Active_Duty<- military_presence_data %>%
+filter(Year == "2008")%>%
+group_by(Location,Coast_Guard_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Coast_Guard_Active_Duty))
+
+```
+
+```{r}
+
+Obama_16_Army_Active_Duty <- military_presence_data %>%
+filter(Year == "2016")%>%
+group_by(Location,Army_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Army_Active_Duty))%>%
+rename(Army_Active_Duty_16 = Army_Active_Duty)
+
+Obama_16_Navy_Active_Duty <- military_presence_data %>%
+filter(Year == "2016")%>%
+group_by(Location,Navy_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Navy_Active_Duty))%>%
+rename(Navy_Active_Duty_16 = Navy_Active_Duty)
+
+
+Obama_16_Marine_Corps_Active_Duty <- military_presence_data %>%
+filter(Year == "2016")%>%
+group_by(Location,Marine_Corps_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Marine_Corps_Active_Duty))%>%
+rename(Marine_Corps_Active_Duty_16 = Marine_Corps_Active_Duty)
+
+
+Obama_16_Air_Force_Active_Duty<- military_presence_data %>%
+filter(Year == "2016")%>%
+group_by(Location,Air_Force_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Air_Force_Active_Duty))%>%
+rename(Air_Force_Active_Duty_16 = Air_Force_Active_Duty)
+
+Obama_16_Coast_Guard_Active_Duty<- military_presence_data %>%
+filter(Year == "2016")%>%
+group_by(Location,Coast_Guard_Active_Duty,Year)%>%
+  summarise()%>%
+arrange(desc(Coast_Guard_Active_Duty))%>%
+rename(Coast_Guard_Active_Duty_16 = Coast_Guard_Active_Duty)
+
+```
+```{r}
+
+Obama_16_Army_Active_Duty %>% left_join(Obama_08_Army_Active_Duty)
+
+obama_08_and_16 <- military_presence_data %>%
+   filter(year == "2008" | year == "2016")  
+
+  
+    homicide_arrests_per_city_per_year <- homicide_data %>% 
+  filter(year == "2014" | year == "2017") %>% 
+  group_by(city, year, disposition) %>% 
+  mutate(
+    amount_of_cases_per_disposition = n()
+  ) %>% 
+  group_by(city, year) %>% 
+  mutate(
+    amount_of_cases = n(),
+    percent_of_cases_per_disposition = amount_of_cases_per_disposition / amount_of_cases * 100
+  ) %>% 
+  filter(disposition == "Closed by arrest")   
+```
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
