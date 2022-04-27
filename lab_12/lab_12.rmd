@@ -54,7 +54,7 @@ Put your sentence in the answer below, along with one other question you could a
 
 **A1.**
 	
-2022-04-19, VEHICLE ACCIDENT
+2022-04-19, SUSPICIOUS EVENT, 7 times in the last 30 days. 
 
 Another question - what is the percentage of all closed cases?
 
@@ -78,9 +78,8 @@ first_title <- most_recent%>%
 thirty_days<- police_incidents_WV_most_recent%>%
   arrange(desc(date))%>%
   filter(title == first_title$title)%>%
- filter(date >= most_recent$date - 30) %>% nrow()
+ filter(date >= most_recent$date - 30)
 
-sentence
 
 ```
 
@@ -100,6 +99,24 @@ To do that, you will need to:
 Google the top 2-3 zip codes from both Maryland and non-Maryland results and describe them in your answer.
 
 **A2.**
+```{r}
+
+maryland_zips_data <-read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/Vax_ZIP_CODE_FirstSecondSingle_Totals_Raw.csv")
+maryland_vax_cleaned <-maryland_zips_data%>%
+  filter(!is.na(FullyVaccinated))
+
+  maryland_vax_cleaned%>%mutate(ZIP_CODE = str_sub(ZIP_CODE, start=1L, end=5L))
+  
+  
+  
+  %>%
+    filter(ZIP_CODE 20588, < 21930)
+
+```
+
+
+
+
 
 ```{r}
 
