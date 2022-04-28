@@ -54,7 +54,7 @@ Put your sentence in the answer below, along with one other question you could a
 
 **A1.**
 	
-2022-04-19, SUSPICIOUS EVENT, 7 times in the last 30 days. 
+"SUSPICIOUS EVENT which occurred on April 21 2022 has happened 7 times in the past 30 days"
 
 Another question - what is the percentage of all closed cases?
 
@@ -78,8 +78,11 @@ first_title <- most_recent%>%
 thirty_days<- police_incidents_WV_most_recent%>%
   arrange(desc(date))%>%
   filter(title == first_title$title)%>%
- filter(date >= most_recent$date - 30)
+ filter(date >= most_recent$date - 30)%>%
+ 
 
+sentence <- paste( format(first_title$title),"which occurred on",  format(most_recent$date, (format="%B %d %Y")), "has happened",nrow(thirty_days) ,"times in the past 30 days.",sep=" ")
+sentence
 
 ```
 
@@ -98,7 +101,9 @@ To do that, you will need to:
 
 Google the top 2-3 zip codes from both Maryland and non-Maryland results and describe them in your answer.
 
-**A2.**
+**A2.**The top two non-MD results are in  D.C. and the top Maryland zip codes are in Montgomery County. Those places have a higher number of vaccinated people compared to the rest of the state. 
+
+```{r}
 ```{r}
 
 maryland_zips_data <-read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/Vax_ZIP_CODE_FirstSecondSingle_Totals_Raw.csv")
@@ -138,6 +143,42 @@ You WILL need to ensure that the columns you use to join the two dataframes are 
 Describe the output of the map below, and say what you think the most interesting areas are.
 
 **A3.**
+Some Eastern Shore MD counties and the northwestern part of the state such as places around Washington Garrett, Allegany have a higher rate of unvaccinated people. But at least 50% or more of Maryland population is vaccinated in most counties, as we can see on the map.
+
 
 ```{r}
+md_population <- get_acs(geography = "zcta", variables = (population = "B01001_001"),
+                         state = "MD", geometry = TRUE)
+md_population <- md_population%>%
+  select(GEOID, estimate, geometry)%>%
+  rename(zip=GEOID, population = estimate)%>%
+  mutate(zip = as.numeric (zip))
+
+
+md_vax_zip <-md_population %>% left_join (md_zips, zip = zip)
+md_vax_zip<- md_vax_zip%>%
+  mutate(percentage = ((FullyVaccinated/population)*100))%>%
+  filter(percentage <50)
+
+map <- read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv")
+head(map)
+md <- map%>%
+  filter (state == "Maryland ")
+current <- md%>%
+  summarise(max(date))
+mdcurrent <-md%>%
+  filter(date == current [[1]])%>%
+  rename(GEOID = fips)
+counties <- st_read("cb_2018_us_county_5m/cb_2018_us_county_5m.shp")
+
+counties<-counties%>%left_join((mdcurrent))
+marylandcounties<-counties%>%
+  filter(STATEFP == 24)
+ggplot()+
+  geom_sf(data=marylandcounties,aes())+
+  geom_sf(data=md_vax_zip, aes(fill=percentage))+
+  scale_fill_viridis_c(option = "plasma", trans = "sqrt")+
+  theme_void()+
+  labs(title = paste("MD counties with less than 50% population are vaccinated as of ", current[[1]], sep=""))
+
 ```
