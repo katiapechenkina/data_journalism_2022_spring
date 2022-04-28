@@ -103,25 +103,33 @@ Google the top 2-3 zip codes from both Maryland and non-Maryland results and des
 
 maryland_zips_data <-read_csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/Vax_ZIP_CODE_FirstSecondSingle_Totals_Raw.csv")
 maryland_vax_cleaned <-maryland_zips_data%>%
-  filter(!is.na(FullyVaccinated))
+  mutate(zip = ZIP_CODE, date = today()) %>%
+  select(zip, date, FirstDose, SecondDose,SingleDose,AtleastOneDose,FullyVaccinated)
 
-  maryland_vax_cleaned%>%mutate(ZIP_CODE = str_sub(ZIP_CODE, start=1L, end=5L))
+maryland_vax_cleaned%>% drop_na(FullyVaccinated)%>%
+  filter(between(zip,10000,99999))
   
-  
-  
-  %>%
-    filter(ZIP_CODE 20588, < 21930)
+md_zips <-maryland_vax_cleaned%>% 
+  filter(zip >= "20588" & zip <= "21930")
+top_md_zips <-md_zips %>%
+  arrange(desc(FullyVaccinated))%>%
+  head(25)
+
+non_md_zips <-maryland_vax_cleaned%>%
+  filter(zip >= "20588" & zip <= "21930")
+top_non_md_zips <-non_md_zips %>%
+  arrange(desc(FullyVaccinated)) %>% 
+  head(25)
+
+st=format(Sys.time(), "%Y%m%d")
+md_zips_csv <- paste("md_zips_",st, ".csv", sep = "")
+non_md_zips_csv <-paste("non_md_zips_",st,".csv",sep ="")
+
+write_csv(top_md_zips, md_zips_csv)
+write_csv(top_non_md_zips,non_md_zips_csv)
 
 ```
 
-
-
-
-
-```{r}
-
-totalvax_by_zip <- read.csv("https://raw.githubusercontent.com/state-of-maryland/VaccineCSVs/master/Vax_ZIP_CODE_FirstSecondSingle_Totals_Raw.csv")
-```
 
 **Q3.** Maryland has had one of the more successful vaccination rates, but you want to understand where a significant portion of the population remains less than fully vaccinated. Make a dataframe of all Maryland zip codes from the vaccination data you used in Q2 and join it to Maryland zip code population data from the Census API. Calculate the percentage of fully vaccinated for each zip code and then make a map showing the zip codes with less than 50 percent fully vaccinated. Put a blank map with the outline of Maryland counties (which you can get from Tigris) behind it for context. Add a label to the map describing what the data is and include the date from the vaccination data (programmatically, so you can run it every day).
 
