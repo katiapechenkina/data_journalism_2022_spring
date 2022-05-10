@@ -1,0 +1,304 @@
+---
+title: "R Notebook"
+author: Katia Pechenkina
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## PPP State Profile
+
+Your assignment is to explore a dataset of PPP loan applications for a particular state and to answer a series of questions that will help you summarize that state's loan applications. You will need to write R code to answer those questions. You also will bring in other data, including Census information, and you will be making graphics, including maps, to illustrate your findings.
+
+The deliverable will be this R Markdown notebook and a data folder that you will receive with a state's loan application data. Place any other data you are using to answer the questions in the same data folder.
+
+## Load libraries and establish settings
+
+**Task** Create a codeblock and load appropriate packages and settings for this assignment.
+
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(dplyr)
+library(tidycensus)
+```
+
+* A Census API key
+```{r echo=FALSE}
+census_api_key("0720bf2ba760e79a2290071fb3b64a88af2da67f")
+```
+
+
+
+## Initial Exploration
+
+**Q1.**. Write R code that generates some basic descriptive statistics that allows you to describe the applications from your state. This code should produce results that describe the data in different ways: how many applications there are, along with ways to understand the typical and most frequent values for columns you find interesting or newsworthy. You should produce at least five (5) descriptive statistics and write up a summary of the data using them.
+
+**A1.** 
+
+1. 171725 total applications in Iowa, according to the data.
+
+2. Polk county got the most applications - 14795	, for $1399531991.8 , according to my findings. 
+
+3. 	50266 is the zip code in Iowa where a company got the highest loan amount - $10,000,000. It's called ITA GROUP, INC. That zip code is located in West Des Moines area. The forgiveness amount was larger - $10,113,151 probably due to the accumulated interest rates. 
+My guess is they included the accumulated loan interest. 
+4.  Polk county had the highest number of jobs retained. It's the most populated county in Iowa, so not surprising.
+5.  I got the dataframe that shows the mean, median, min and max loan amount in each county. Only two counties got the max loan amount of 10 million. What caught my attention - all Iowa counties had loans for under $706, and the smallest one was only $49. I arranged in descending order of the min_loan_amount and realized that the first 5 rows are not Iowa counties. 
+
+```{r}
+iowa_ppp <-read_csv("C:/Users/peche/Downloads/iowa_ppp.csv.zip")
+
+
+###How many applications there are in Iowa?
+
+ 
+ iowa_ppp_total <- iowa_ppp%>% 
+  summarise(total_ppp_loans = n())
+### Which county got the most loans? How many? 
+
+iowa_ppp_county <-iowa_ppp%>%
+group_by(project_county_name) %>%
+  summarise(
+    count_loans = n(),
+    total_loans_amount = sum(amount)
+  ) %>% 
+  arrange(desc(total_loans_amount))
+### Which ZIP code that had the highest total amount of loans? What is the name of the business that got the largest loan (by dollar value) in that zip code?    
+iowa_ppp_zip<-iowa_ppp%>%
+group_by(zip, amount,name,forgiveness_amount) %>%
+  summarise(
+    count=n()
+  ) %>%
+  arrange(desc(amount))%>%
+mutate(zip = str_sub(zip, start=1L, end=5L))
+
+#How many jobs were retained in Iowa by county?
+iowa_ppp %>%
+  group_by(project_county_name)%>%
+  summarise(
+    total_jobs = sum(jobs_retained)
+    ) %>% arrange(desc(total_jobs))
+
+### Mean , median, min and max loan amounts in Iowa
+
+iowa_ppp_mean <- iowa_ppp %>%
+  group_by(project_county_name) %>%
+  summarise(
+    mean_loan_amount = mean(amount),
+    median_loan_amount = median(amount),
+    min_loan_amount = min(amount),
+    max_loan_amount = max(amount)
+  ) %>%
+  arrange(desc(min_loan_amount))
+  
+```
+
+## Geographic Analysis
+
+**Q2.** Write R code that examines geographic patterns for PPP loans in your state, using Census population information to calculate a per-capita figure for the state and counties and zip codes. Then, make a county map using ggplot showing the per-capita data and a zip code map showing the difference from the statewide per-capita figure. Describe the most interesting or newsworthy findings based on your exploration.
+
+**A2.** Iowa has 5,382 ppp loans per 100,000 people. The most populous county, Polk county has a population of 492,401 and has the highest amount of loans per capita. There is a disparity of who got the most loans in what Iowa region - Central Iowa got the most loans, while western and southwestern part got the least number of loans. 
+```{r}
+
+### State loans
+iowa_state <- get_acs(geography = "state", variables = "B01001_001", year = 2019, geometry = TRUE) %>% 
+  filter(NAME == "IA")
+
+iowa_loans_ppp <- iowa_ppp %>% 
+  summarise(count=n())
+state_per_capita <- iowa_state %>% 
+  mutate(
+    per_capita = ((iowa_loans_ppp$count / iowa_state$estimate)*100000)
+    
+  )
+
+###County loans
+
+iowa_county <- get_acs(geography = "county", variables = c(population = "B01001_001"), 
+              state = "IA", geometry = TRUE)
+
+ iowa_county_loans <- iowa_ppp %>% 
+  group_by(project_county_name) %>% 
+  summarise(count_loans = n()) 
+ 
+  iowa_county_per_capita<- merge(iowa_county, iowa_county_loans, by=c("COUNTY"), all.COUNTY=FALSE) %>% 
+  mutate(loans_per_capita = ((count_loans/population)* 100000)) %>%
+   arrange(desc(loans_per_capita))
+  
+ggplot() + 
+  geom_sf(data=county_per_capita, aes(fill=loans_per_capita)) + 
+  theme_minimal()+
+  scale_fill_viridis_b(option="magma",trans = "log") 
+
+
+  
+###zip codes
+
+iowa_zip <- get_acs(geography = "zcta", variables = c(population = "B01001_001"), state = "IA", geometry = TRUE)
+iowa_ppp <- iowa_ppp %>% 
+  mutate(zip5 = str_sub(zip, start=1L, end=5L))
+
+iowa_zip <- iowa_zip %>%
+  mutate(project_zip = str_sub(project_zip, start = 1L, end = 5L)) %>% 
+  rename(GEOID = project_zip) %>% 
+  group_by(GEOID)%>%
+summarise(total = n())
+
+iowa_zip_per_capita<-iowa_zip %>%
+  left_join(fl_zip_clean, by = "GEOID") %>% 
+  mutate(per_capita = ((total/estimate)*100000),
+         per_capita_diff = state_per_capita$per_capita - per_capita)
+
+
+#map 
+state_map <- counties()%>%
+  filter(STATEFP == 19)
+ggplot() + 
+  geom_sf(data=state_map, fill = "white")+
+  geom_sf(data=zip_per_capita, aes(fill=per_capita_diff)) + 
+  theme_minimal()+
+  scale_fill_viridis_b(option="magma",trans = "log") 
+
+
+
+```
+
+## Lender Analysis
+
+**Q3.** Write R code to examine which lenders had the most approved applications in your state (and include summary statistics such as total amount and average loan amount). Generate dataframes that show the number and total amount of all loans and undisbursed loans per lender. For those lenders who had any undisbursed loans, make a graphic showing the relationship between the total amount of loans and the total undisbursed amount. Describe the most noticeable outlier lenders on that graphic below.
+
+**A3.** 
+Only one lender had undisbursed amounts of ppp loans - 	Grinnell State Bank.
+
+https://datawrapper.dwcdn.net/lbvGR/1/
+```{r}
+iowa_undisbursed_amount <-iowa_ppp %>% 
+  select(name, amount, lender, undisbursed_amount, zip, date_approved) %>%
+  arrange(desc(undisbursed_amount))
+
+iowa_lenders_undisbursed <- iowa_undisbursed_amount %>% 
+  group_by(lender) %>% 
+  summarise(total_undisbursed_amount = sum(undisbursed_amount),
+            total_amount = sum(amount)) %>%
+  arrange(desc(total_undisbursed_amount)) %>% 
+  head(10)
+
+write_csv(iowa_lenders_undisbursed, "iowa_lenders_undisbursed.csv")
+```
+
+
+## Industry Analysis
+
+**Q4.** Write R code that examines industry patterns for PPP loans in your state, using the NAICS codes from the PPP data as a starting point. Generate statewide and county industry totals, then join that with 2018-19 data from the [Census County Business Patterns survey](https://www2.census.gov/programs-surveys/cbp/datasets/2019/cbp19co.zip) using 6-digit NAICS codes. The documentation explaining that data can be found here: https://www2.census.gov/programs-surveys/cbp/technical-documentation/records-layouts/2018_record_layouts/county-layout-2018.txt. To do this, you will need to add FIPS codes to your PPP dataset.
+
+Does the distribution of PPP applications by the top 10 industries (by number of applications) roughly match the number of businesses reported in the Census data? Does it roughly match if you remove self-employed individuals and sole proprietorships from the PPP totals? Write up a summary of what you've found and whether there are potentially newsworthy patterns in the data.
+
+Create a county-level map showing the differences between the PPP applications and the Census business data for one of the top 10 industry codes. You can do this either using ggplot or Datawrapper (if the latter, publish that map and include the URL below).
+
+**A4.** 
+I started by looking at the industries using the naics code from Iowa ppp data. The top "businesses" with the highest number of loans were all Religious organizations(churches), followed by a business called RICHARD MILLER from the Corn Farming industry (not surprising for Iowa). 
+But if we look at who had the most number of loans greater than 150,000 than we get a different result. There are a number of different industries with 2 loans. 
+I also looked at what businesses from what industries had loans greater than $9,999,999. Three results : ITA GROUP, INC - All Traveler Accommodation industry (not hotels but guest houses, cottages and hostels), MITTERA GROUP, INC. from Commercial Printing Industry and VOGEL PAINT, INC. from the Paint and Coating Manufacturing industry. 
+
+The distribution of ppp applications roughly matches the the number of reported businesses. 
+
+
+```{r}
+###general loan count using naics 
+iowa_ppp_with_naics <-iowa_ppp%>%
+  group_by(name, naics_code) %>%
+  summarise(count_loans = n())%>%
+  arrange(desc(count_loans))
+
+###number of loans > 150,000
+iowa_ppp_with_naics_150000<-iowa_ppp%>%
+  filter(amount > 150000) %>%
+  group_by(name,naics_code) %>%
+  summarise(count_loans = n())%>%
+  arrange(desc(count_loans))
+
+###number of loans over 9,999,999
+
+iowa_ppp_with_naics_1M<-iowa_ppp%>%
+  filter(amount > 9999999) %>%
+  group_by(name,naics_code) %>%
+  summarise(count_loans = n())%>%
+  arrange(desc(count_loans))
+
+
+###joining with 18-19 naics
+naics_codes <- read_csv("naics_codes.csv")
+iowa_ppp_with_naics_18_19 <- iowa_ppp %>% 
+  inner_join(naics_codes, by="naics_code")%>% 
+  select(name, naics_code, title, project_county_name)
+
+county_fips <- read_csv("county_fips.csv") 
+iowa_county_fips <- county_fips %>% 
+  filter(state == "IA")
+
+iowa_ppp_naics_fips <- iowa_ppp_with_naics_18_19 %>% 
+  inner_join(county_fips, by=c("project_county_name" = "match_county")) %>% 
+  select(-state, -state_code, -state_name, -county_code, -county)
+
+#top ten industries by state
+iowa_ppp_naics_fips_state <- iowa_ppp_naics_fips %>% 
+  group_by(naics_code) %>% 
+  summarise(total = n()) %>% 
+  arrange(desc(total)) %>% 
+  head(10)
+#top ten industries by county
+iowa_ppp_naics_fips_county <- iowa_ppp_naics_fips %>% 
+  group_by(fips_code) %>% 
+  summarise(total = n()) %>% 
+  arrange(desc(total)) %>% 
+  head(10)
+
+iowa_ppp_naics_fips_state <- iowa_ppp_naics_fips_state %>% 
+  left_join(naics_codes, by=c("naics_code")) 
+
+cbp_19_co <- read_csv("cbp19co.zip")
+iowa_cbp <- cbp_19_co%>% rename (naics_codes=naics)
+
+iowa_naics_est<- merge(iowa_cbp,iowa_ppp_naics_fips_state, by=c("naics_codE"), all.naics_code = FALSE)
+  
+
+iowa_naics_est<-iowa_naics_est %>% 
+  group_by(naics_code) %>% 
+  summarise(
+    est=sum(est)
+  ) %>% mutate(naics_code= as.numeric(naics_code)) 
+
+
+iowa_naics_111150 <- iowa_ppp_naics_fips %>% 
+  filter(naics_code == "111150") %>% 
+  group_by(fips_code) %>% 
+  summarise(total = n())
+
+ 
+###ggplot bar chart
+iowa_ppp_naics_fips_state %>%
+  ggplot()+
+  geom_bar(aes(x=reorder(fips_code, total), weight=total), fill = "blue")+
+  coord_flip()+
+  labs(
+    title ="Top 10 Industries",
+    x = "Iowa",
+    y = "PPP applications",
+    caption = "source: SBA PPP loan database"
+  )
+
+
+```
+## Summary
+
+**Q5.** What is the most promising story idea that you have found during this exploration? How would you approach reporting it out and what other information/data would you need to do that? What would be the minimum story you could get from this, and what would be the maximum story?
+
+**A5.**
+What I found interesting was that most Iowa counties had minimum loan amount under $500, although the minimum loan amount $1000, according to the SBA. 
+To report on this story, I would need to look further into what type of businesses got those loans, who was the lender, etc. Taking to a specific lender or a business would help shine some light on this. But most importantly, we need to understand why the rule of no loans under 1000 dollars was not followed. 
